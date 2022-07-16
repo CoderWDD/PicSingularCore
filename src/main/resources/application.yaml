@@ -1,1 +1,10 @@
 
+spring:
+  datasource:
+    url: jdbc:mysql://106.15.2.32:10000/PicSingularDatabase?characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: 123456qq.
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8806
