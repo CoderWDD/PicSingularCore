@@ -1,5 +1,6 @@
 package com.example.picsingularcore.pojo
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -9,17 +10,17 @@ data class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var userId: Long,
 
-    @Column(name = "username")
+    @Column(name = "username", nullable = false)
     var username: String,
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     var password: String,
 
-    @Column(name = "avatar")
-    var avatar: String,
+    @Column(name = "avatar", nullable = true)
+    var avatar: String? = null,
 
-    @Column(name = "signature")
-    var signature: String,
+    @Column(name = "signature",nullable = true)
+    var signature: String? = null,
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
     @JoinTable(
@@ -27,7 +28,8 @@ data class User(
         joinColumns = [JoinColumn(name = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "role_id")]
     )
-    var roles: List<Role>,
+    @JsonIgnore
+    var roles: List<Role>? = null,
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinTable(
@@ -35,7 +37,8 @@ data class User(
         joinColumns = [JoinColumn(name = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "singular_id")]
     )
-    var favoriteList: List<Singular>,
+    @JsonIgnore
+    var favoriteList: List<Singular>? = null,
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinTable(
@@ -43,5 +46,6 @@ data class User(
         joinColumns = [JoinColumn(name = "user_id")],
         inverseJoinColumns = [JoinColumn(name = "singular_id")]
     )
-    var subscriptionList: List<Singular>,
+    @JsonIgnore
+    var subscriptionList: List<Singular>? = null,
 )

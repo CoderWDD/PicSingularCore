@@ -1,5 +1,6 @@
 package com.example.picsingularcore.pojo
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.lang.Nullable
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatterBuilder
@@ -26,13 +27,12 @@ data class CommentLevelFirst(
     var createData: String = LocalDateTime.now()
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 
-    @ManyToMany
-    @JoinTable(name = "comment_level_first",
-            joinColumns = [JoinColumn(name = "user_id")],
-            inverseJoinColumns = [JoinColumn(name = "singular_id")])
-    var singularList: List<Singular>,
+//    @ManyToOne
+//    @JsonIgnore
+//    @JoinColumn(name = "singular_id")
+//    var singular: Singular? = null
 
-    @OneToMany
-    @JoinColumn(name = "comment_second_id")
-    var commentSecondList: List<CommentLevelSecond>
+//    @OneToMany( cascade = [CascadeType.DETACH])
+//    @Column(name = "comment_second_list")
+//    var commentSecondList: List<CommentLevelSecond>
 )

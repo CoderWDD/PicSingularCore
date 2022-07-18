@@ -5,6 +5,8 @@ spring:
     username: root
     password: 123456qq.
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    generate-ddl: true
 
 server:
   port: 8806

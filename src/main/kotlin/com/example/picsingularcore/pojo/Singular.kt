@@ -1,5 +1,6 @@
 package com.example.picsingularcore.pojo
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.annotations.CreationTimestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatterBuilder
@@ -44,4 +45,9 @@ data class Singular(
         joinColumns = [JoinColumn(name = "singular_id")],
         inverseJoinColumns = [JoinColumn(name = "category_id")])
     var categoryList: List<SingularCategory>,
+
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @JoinColumn(name = "singular_id")
+    @JsonIgnore
+    var commentLevelFirstList: List<CommentLevelFirst>
 )
