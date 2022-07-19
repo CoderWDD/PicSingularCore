@@ -7,6 +7,15 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     generate-ddl: true
+  redis:
+    port: 6997
+    host: 106.15.2.32
+    connect-timeout: 5000
+    jedis:
+      pool:
+        max-idle: 10
+        max-wait: -1
+        min-idle: 5
 
 server:
   port: 8806

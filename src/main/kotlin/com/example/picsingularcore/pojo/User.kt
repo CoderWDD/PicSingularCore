@@ -7,8 +7,9 @@ import javax.persistence.*
 data class User(
     @Id
     @Column(name = "user_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var userId: Long,
+    @GeneratedValue(generator = "user_id_seq",strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
+    var userId: Long? = null,
 
     @Column(name = "username", nullable = false)
     var username: String,
@@ -29,7 +30,7 @@ data class User(
         inverseJoinColumns = [JoinColumn(name = "role_id")]
     )
     @JsonIgnore
-    var roles: List<Role>? = null,
+    var roles: List<Role?>? = null,
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinTable(
