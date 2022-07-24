@@ -1,0 +1,45 @@
+version: "3"
+services:
+  mysqldb:
+    container_name: PicSingularCore_mysqldb
+    image: mysql:8.0.27
+    ports:
+      - "3306:3306"
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--default-time-zone=+8:00'
+    ]
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456qq.
+      - MYSQL_DATABASE=PicSingularDatabase
+
+  redis:
+    container_name: PicSingularDatabase_Redis
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PORT=6379
+      - CONNECT_TIMEOUT=5000
+      - MAX_IDLE=10
+      - MAX_WAIT=-1
+      - MIN_IDLE=5
+
+  PicSingular:
+    container_name: PicSingularCore
+    build: .
+    image: pic_singular_core_image
+    ports:
+      - "8806:8806"
+    restart: always
+    depends_on:
+      - mysqldb
+      - redis
+    links:
+      - "mysqldb:mysqldb"
+      - "redis:redis"
+    environment:
+      - TZ=Asia/Shanghai

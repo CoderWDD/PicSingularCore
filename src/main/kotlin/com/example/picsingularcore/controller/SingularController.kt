@@ -198,7 +198,7 @@ class SingularController {
         }
         val user = userRepository.findById(userId).get()
         val owner = userRepository.findByUsername(authentication.name)!!
-        owner.subscriptionList?.add(user)
+        owner.subscriptionList.add(user)
         userRepository.save(owner)
     }
 
@@ -210,7 +210,7 @@ class SingularController {
         }
         val user = userRepository.findById(userId).get()
         val owner = userRepository.findByUsername(authentication.name)
-        owner!!.subscriptionList?.remove(user)
+        owner!!.subscriptionList.remove(user)
         userRepository.save(owner)
     }
 
@@ -218,7 +218,7 @@ class SingularController {
     @GetMapping("/singular/subscribe/list")
     fun getSubscribeList(authentication: Authentication): List<User>{
         val owner = userRepository.findByUsername(authentication.name)!!
-        return owner.subscriptionList ?: mutableListOf()
+        return owner.subscriptionList
     }
 
     // get singular list of subscribe user

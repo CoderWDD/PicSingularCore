@@ -29,7 +29,7 @@ class UserController {
     lateinit var userService: UserService
 
     @Autowired
-    lateinit var redisTemplate: RedisTemplate<String, Any>
+    lateinit var redisTemplate: RedisTemplate<String, String>
 
     @Autowired
     lateinit var jwtUtil: JwtUtil
@@ -40,7 +40,7 @@ class UserController {
     @PostMapping("/user/login")
     fun login(@RequestBody user: UserDTO) : User? {
         // find if token is already in redis and if token is valid, decode it and return user
-        val token = redisTemplate.opsForValue().get(user.username) as String?
+        val token = redisTemplate.opsForValue().get(user.username)
         if (token != null && jwtUtil.isTokenValid(token) && BCryptPasswordEncoder().matches(user.password, jwtUtil.getPasswordFromToken(token))) {
             // add token to response header
             httpServletResponse.addHeader("Authorization", "Bearer $token")
@@ -74,7 +74,7 @@ class UserController {
     @PostMapping("/user/logout")
     fun logout(authentication: Authentication) : String {
         val user = userRepository.findByUsername(authentication.name)!!
-        val token = redisTemplate.opsForValue().get(user.username!!) as String?
+        val token = redisTemplate.opsForValue().get(user.username!!)
         if (token != null && jwtUtil.isTokenValid(token)) {
             redisTemplate.delete(user.username!!)
             return "User logged out successfully"
@@ -129,7 +129,7 @@ class UserController {
             file.renameTo(File(FilePathConstant.IMAGE_PATH + user.username + "/"))
         }
         val userFound = userRepository.findByUsername(authentication.name)!!
-        userFound.username = user.username ?: userFound.username
+        userFound.username = user.username
         userFound.avatar = user.avatar ?: userFound.avatar
         userFound.signature = user.signature ?: userFound.signature
         userFound.password = user.password ?: BCryptPasswordEncoder().encode(userFound.password)
