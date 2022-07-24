@@ -1,7 +1,5 @@
 package com.example.picsingularcore.pojo
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import org.springframework.lang.Nullable
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatterBuilder
 import javax.persistence.*
@@ -10,29 +8,26 @@ import javax.persistence.*
 data class CommentLevelFirst(
     @Id
     @Column(name = "comment_first_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var commentFirstId: Long,
+    @GeneratedValue(generator = "comment_first_id_seq",strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "comment_first_id_seq", sequenceName = "comment_first_id_seq", allocationSize = 1)
+    var commentFirstId: Long? = null,
 
-    @Column(name = "user_id")
-    var userId: Long,
+    @Column(name = "user_id", nullable = false)
+    var userId: Long? = null,
+
+    @Column(name = "username", nullable = false)
+    var username: String? = null,
 
     @Column(name = "content")
-    var content: String,
+    var content: String? = null,
 
     @Column(name = "like_count")
-    var likeCount: Int,
+    var likeCount: Int = 0,
 
     @Column(name = "create_data")
-    @Nullable
     var createData: String = LocalDateTime.now()
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 
-//    @ManyToOne
-//    @JsonIgnore
-//    @JoinColumn(name = "singular_id")
-//    var singular: Singular? = null
-
-//    @OneToMany( cascade = [CascadeType.DETACH])
-//    @Column(name = "comment_second_list")
-//    var commentSecondList: List<CommentLevelSecond>
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    var commentSecondList: MutableList<CommentLevelSecond>? = mutableListOf()
 )

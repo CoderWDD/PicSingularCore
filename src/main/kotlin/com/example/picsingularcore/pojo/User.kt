@@ -12,10 +12,11 @@ data class User(
     var userId: Long? = null,
 
     @Column(name = "username", nullable = false)
-    var username: String,
+    var username: String? = null,
 
     @Column(name = "password", nullable = false)
-    var password: String,
+    @JsonIgnore
+    var password: String? = null,
 
     @Column(name = "avatar", nullable = true)
     var avatar: String? = null,
@@ -30,7 +31,7 @@ data class User(
         inverseJoinColumns = [JoinColumn(name = "role_id")]
     )
     @JsonIgnore
-    var roles: List<Role?>? = null,
+    var roles: MutableList<Role?> = mutableListOf(),
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinTable(
@@ -39,7 +40,7 @@ data class User(
         inverseJoinColumns = [JoinColumn(name = "singular_id")]
     )
     @JsonIgnore
-    var favoriteList: List<Singular>? = null,
+    var favoriteList: MutableList<Singular> = mutableListOf(),
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinTable(
@@ -48,5 +49,5 @@ data class User(
         inverseJoinColumns = [JoinColumn(name = "singular_id")]
     )
     @JsonIgnore
-    var subscriptionList: List<Singular>? = null,
+    var subscriptionList: MutableList<User> = mutableListOf(),
 )

@@ -32,7 +32,7 @@ class SecurityConfig () {
             .authorizeRequests()
             .antMatchers("/user/login", "/user/register").permitAll()
             .antMatchers("/admin/**").hasRole(RolesConstant.ADMIN.name)
-            .antMatchers("/user/**").hasRole(RolesConstant.USER.name)
+//            .antMatchers("/user/**").hasRole(RolesConstant.USER.name)
             .antMatchers("/supper_admin/**").hasRole(RolesConstant.SUPER_ADMIN.name)
             .anyRequest().authenticated()
 

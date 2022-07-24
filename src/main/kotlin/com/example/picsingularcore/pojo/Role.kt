@@ -10,7 +10,4 @@ data class Role(
     var role_id: Long? = null,
     @Column(name = "role_name")
     var name: String?,
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.DETACH])
-    var users: List<User?>? = null
 )

@@ -8,16 +8,16 @@ import org.springframework.security.core.userdetails.UserDetails
 class UserDetailsImpl(val user: User): UserDetails  {
     // get user roles from database
     override fun getAuthorities(): MutableList<SimpleGrantedAuthority>? {
-        return user.roles?.map { role ->
+        return user.roles.map { role ->
             SimpleGrantedAuthority(role?.name)
-        }?.toMutableList()
+        }.toMutableList()
     }
 
-    override fun getPassword(): String {
+    override fun getPassword(): String? {
         return user.password
     }
 
-    override fun getUsername(): String {
+    override fun getUsername(): String? {
         return user.username
     }
 

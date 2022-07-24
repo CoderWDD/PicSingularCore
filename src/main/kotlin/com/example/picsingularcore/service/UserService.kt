@@ -5,7 +5,7 @@ import com.example.picsingularcore.dao.RoleRepository
 import com.example.picsingularcore.dao.UserRepository
 import com.example.picsingularcore.pojo.Role
 import com.example.picsingularcore.pojo.User
-import com.example.picsingularcore.pojo.UserDTO
+import com.example.picsingularcore.pojo.dto.UserDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -24,11 +24,8 @@ class UserService {
         var role = roleRepository.findByName(RolesConstant.USER.name)
         // if role is null, create new role
         if (role == null) role = Role(name = RolesConstant.USER.name)
-        user.roles = listOf(role)
+        user.roles = mutableListOf(role)
         return userRepository.save(user)
     }
 
-    fun login(username: String, password: String): User? {
-        return userRepository.findByUsername(username)
-    }
 }

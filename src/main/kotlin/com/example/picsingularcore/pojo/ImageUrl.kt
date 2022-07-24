@@ -7,10 +7,10 @@ data class ImageUrl(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id")
-    var imageId: Long,
+    var imageId: Long? = null,
 
     @Column(name = "singular_id")
-    var singularId: String,
+    var singularId: String? = null,
 
     @Column(name = "image_url")
     var imageUrl: String? = null

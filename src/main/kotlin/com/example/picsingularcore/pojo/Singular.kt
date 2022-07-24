@@ -11,43 +11,47 @@ data class Singular(
     @Id
     @Column(name = "singular_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var singularId: Long,
+    var singularId: Long? = null,
 
     @Column(name = "create_data")
     var pushData: String = LocalDateTime.now()
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 
     @Column(name = "like_count")
-    var likeCount: Int,
+    var likeCount: Int = 0,
 
     @Column(name = "comment_count")
-    var commentCount: Int,
+    var commentCount: Int = 0,
 
     @Column(name = "read_count")
-    var readCount: Int,
+    var readCount: Int = 0,
 
     @Column(name = "description")
-    var description: String,
+    var description: String = "",
 
     @Column(name = "singular_status")
-    var singularStatus: String,
+    var singularStatus: String = "Save",
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_id")
-    var imageList: List<ImageUrl>,
+    @OneToMany(fetch = FetchType.LAZY,cascade = [CascadeType.ALL])
+    var imageList: List<ImageUrl>? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    var user: User,
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH])
+    @JsonIgnore
+    var user: User? = null,
 
-    @ManyToMany
+    @ManyToMany(cascade = [CascadeType.DETACH,CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH], fetch = FetchType.LAZY)
     @JoinTable(name = "singular_category_relation",
         joinColumns = [JoinColumn(name = "singular_id")],
         inverseJoinColumns = [JoinColumn(name = "category_id")])
-    var categoryList: List<SingularCategory>,
+    @JsonIgnore
+    var categoryList: MutableList<SingularCategory>? = null,
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "singular_id")
     @JsonIgnore
-    var commentLevelFirstList: List<CommentLevelFirst>
-)
+    var commentLevelFirstList: MutableList<CommentLevelFirst>? = null,
+){
+    override fun equals(other: Any?): Boolean {
+        return this.singularId == (other as Singular).singularId
+    }
+}
