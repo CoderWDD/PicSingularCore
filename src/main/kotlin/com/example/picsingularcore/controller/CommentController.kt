@@ -10,6 +10,9 @@ import com.example.picsingularcore.pojo.CommentLevelSecond
 import com.example.picsingularcore.pojo.dto.CommentFirstDTO
 import com.example.picsingularcore.pojo.dto.CommentSecondDTO
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -33,27 +36,40 @@ class CommentController {
 
     // add a first comment to singular
     @PostMapping("/comment/first")
-    fun addFirstComment(authentication: Authentication,@RequestBody commentFirstDTO: CommentFirstDTO): MutableList<CommentLevelFirst> {
+    fun addFirstComment(authentication: Authentication,@RequestBody commentFirstDTO: CommentFirstDTO) {
         if (!singularRepository.existsById(commentFirstDTO.singularId)) {
             throw Exception("singular not found")
         }
         val user = userRepository.findByUsername(authentication.name)!!
-        val commentLevelFirst = CommentLevelFirst(userId = user.userId, username = user.username, content = commentFirstDTO.content, likeCount = 0)
+        val commentLevelFirst = CommentLevelFirst(userId = user.userId!!, username = user.username, content = commentFirstDTO.content, likeCount = 0, singularId = commentFirstDTO.singularId)
         val singular = singularRepository.findById(commentFirstDTO.singularId).get()
         singular.commentLevelFirstList?.add(commentLevelFirst)
         singularRepository.save(singular)
-        // return comment level first list
-        return singularRepository.findById(commentFirstDTO.singularId).get().commentLevelFirstList!!
     }
 
     // get all first comment of singular
-    @GetMapping("/comment/first/{singularId}")
-    fun getAllFirstComment(@PathVariable singularId: Long): List<CommentLevelFirst> {
+    @GetMapping("/comment/first/{singularId}/{page}/{size}")
+    fun getFirstCommentList(
+        @PathVariable singularId: Long,
+        @PathVariable page: Int,
+        @PathVariable size: Int
+    ): List<CommentLevelFirst> {
+        if (page <= 0 || size <= 0) {
+            throw Exception("page or size is invalid")
+        }
         if (!singularRepository.existsById(singularId)) {
             throw Exception("singular not found")
         }
         val singular = singularRepository.findById(singularId).get()
-        return singular.commentLevelFirstList!!
+        return commentRepository.findAll(
+            (Specification { root, query, cb ->
+                cb.and(
+                    cb.equal(root.get<Long>("singularId"), singularId),
+                    cb.equal(root.get<String>("userId"), singular.user!!.userId)
+                )
+            }),
+            PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
+        ).content
     }
 
     // add a second comment to first comment
@@ -105,13 +121,25 @@ class CommentController {
     }
 
     // get all second comment of first comment
-    @GetMapping("/comment/second/{firstCommentId}")
-    fun getAllSecondComment(@PathVariable(name = "firstCommentId") parentCommentId: Long): List<CommentLevelSecond> {
-        if (!commentRepository.existsById(parentCommentId)) {
-            throw Exception("first comment not found")
-        }
-        val commentLevelFirst = commentRepository.findById(parentCommentId).get()
-        return commentLevelFirst.commentSecondList!!
+    @GetMapping("/comment/second/{singularId}/{firstCommentId}/{page}/{size}")
+    fun getSecondCommentList(
+        @PathVariable singularId: Long,
+        @PathVariable(name = "firstCommentId") parentCommentId: Long,
+        @PathVariable(name = "page") page: Int,
+        @PathVariable(name = "size") size: Int
+    ): List<CommentLevelSecond> {
+        if (page <= 0 || size <= 0) throw Exception("page or size is invalid")
+        if (!commentRepository.existsById(parentCommentId)) throw Exception("first comment not found")
+        if (!singularRepository.existsById(singularId)) throw Exception("singular not found")
+        return secondCommentRepository.findAll(
+            (Specification { root, query, cb ->
+                cb.and(
+                    cb.equal(root.get<Long>("singularId"), singularId),
+                    cb.equal(root.get<Long>("parentCommentId"), parentCommentId)
+                )
+            }),
+            PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
+        ).content
     }
 
     // plus first comment like count

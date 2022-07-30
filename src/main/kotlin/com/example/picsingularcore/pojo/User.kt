@@ -12,10 +12,10 @@ data class User(
     var userId: Long? = null,
 
     @Column(name = "username", nullable = false)
-    var username: String? = null,
+    var username: String,
 
     @Column(name = "password", nullable = false)
-    var password: String? = null,
+    var password: String,
 
     @Column(name = "avatar", nullable = true)
     var avatar: String? = null,

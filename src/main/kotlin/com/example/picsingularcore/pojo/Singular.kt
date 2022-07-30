@@ -14,7 +14,7 @@ data class Singular(
     var singularId: Long? = null,
 
     @Column(name = "create_data")
-    var pushData: String = LocalDateTime.now()
+    var pushDate: String = LocalDateTime.now()
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 
     @Column(name = "like_count")

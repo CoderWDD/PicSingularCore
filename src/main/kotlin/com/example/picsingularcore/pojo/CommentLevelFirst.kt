@@ -12,11 +12,14 @@ data class CommentLevelFirst(
     @SequenceGenerator(name = "comment_first_id_seq", sequenceName = "comment_first_id_seq", allocationSize = 1)
     var commentFirstId: Long? = null,
 
+    @Column(name = "singular_id", nullable = false)
+    var singularId: Long,
+
     @Column(name = "user_id", nullable = false)
-    var userId: Long? = null,
+    var userId: Long,
 
     @Column(name = "username", nullable = false)
-    var username: String? = null,
+    var username: String,
 
     @Column(name = "content")
     var content: String? = null,
@@ -25,7 +28,7 @@ data class CommentLevelFirst(
     var likeCount: Int = 0,
 
     @Column(name = "create_data")
-    var createData: String = LocalDateTime.now()
+    var createDate: String = LocalDateTime.now()
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

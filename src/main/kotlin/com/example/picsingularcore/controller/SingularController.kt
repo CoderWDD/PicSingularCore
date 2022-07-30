@@ -11,6 +11,10 @@ import com.example.picsingularcore.pojo.SingularCategory
 import com.example.picsingularcore.pojo.User
 import com.example.picsingularcore.pojo.dto.SingularDTO
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.ExampleMatcher
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
@@ -101,21 +105,58 @@ class SingularController {
     }
 
     // get saved singular list
-    @GetMapping("/singular/list/saved")
-    fun getSavedSingularList(authentication: Authentication): List<Singular> {
-        return singularRepository.findBySingularStatusAndUser(SingularConstant.SAVED.name, userRepository.findByUsername(authentication.name))
+    @GetMapping("/singular/list/saved/{page}/{size}")
+    fun getSavedSingularList(
+        authentication: Authentication,
+        @PathVariable(name = "page") page: Int,
+        @PathVariable(name = "size") size: Int
+    ): List<Singular> {
+        if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
+        return singularRepository.findAll(
+            (Specification { root, query, cb ->
+                val user = userRepository.findByUsername(authentication.name)
+                cb.and(
+                    cb.equal(root.get<Singular>("singularStatus"), SingularConstant.SAVED.name),
+                    cb.equal(root.get<User>("user"), user)
+                )
+            }),
+            PageRequest.of(page - 1, size, Sort.by("pushData").descending())
+        ).content
     }
 
-    // get shared singular list
-    @GetMapping("/singular/list/shared")
-    fun getSharedSingularList(authentication: Authentication): List<Singular> {
-        return singularRepository.findBySingularStatusAndUser(SingularConstant.SHARED.name, userRepository.findByUsername(authentication.name))
+    // get shared singular list of current user
+    @GetMapping("/singular/list/shared/{page}/{size}")
+    fun getSharedSingularList(
+        authentication: Authentication,
+        @PathVariable(name = "page") page: Int,
+        @PathVariable(name = "size") size: Int
+    ): List<Singular> {
+        if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
+        return singularRepository.findAll(
+            (Specification { root, query, cb ->
+                val user = userRepository.findByUsername(authentication.name)
+                cb.and(
+                    cb.equal(root.get<Singular>("singularStatus"), SingularConstant.SHARED.name),
+                    cb.equal(root.get<User>("user"), user)
+                )
+            }),
+            PageRequest.of(page - 1, size, Sort.by("pushData").descending())
+        ).content
     }
 
     // get all shared singular list
-    @GetMapping("/singular/list/all")
-    fun getAllSingularList(): List<Singular> {
-        return singularRepository.findBySingularStatus(SingularConstant.SHARED.name)
+    @GetMapping("/singular/list/all/{page}/{size}")
+    fun getAllSingularList(
+        @PathVariable(name = "page") page: Int,
+        @PathVariable(name = "size") size: Int
+    ): List<Singular> {
+        if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
+        return singularRepository.findAll(
+            (Specification { root, query, cb ->
+                cb.equal(root.get<Singular>("singularStatus"), SingularConstant.SHARED.name)
+            }),
+            PageRequest.of(page - 1, size, Sort.by("pushData").descending())
+        ).content
     }
 
     // change singular status to shared
@@ -184,10 +225,19 @@ class SingularController {
     }
 
     // get favorite singular list of current user
-    @GetMapping("/singular/favorite/list")
-    fun getFavoriteSingularList(authentication: Authentication): List<Singular> {
+    @GetMapping("/singular/favorite/list/{page}/{size}")
+    fun getFavoriteSingularList(
+        authentication: Authentication,
+        @PathVariable(name = "page") page: Int,
+        @PathVariable(name = "size") size: Int
+    ): List<Singular> {
+        if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
         val user = userRepository.findByUsername(authentication.name)
-        return user?.favoriteList ?: mutableListOf()
+        val res = user?.favoriteList ?: listOf()
+        if ((page - 1) * size > res.size) {
+            throw IllegalArgumentException("Page not found")
+        }
+        return res.subList((page - 1) * size, (page * size).coerceAtMost(res.size))
     }
 
     // add subscribe user to current user
@@ -215,15 +265,29 @@ class SingularController {
     }
 
     // get subscribe user list of current user
-    @GetMapping("/singular/subscribe/list")
-    fun getSubscribeList(authentication: Authentication): List<User>{
-        val owner = userRepository.findByUsername(authentication.name)!!
-        return owner.subscriptionList
+    @GetMapping("/singular/subscribe/list/{page}/{size}")
+    fun getSubscribeList(
+        authentication: Authentication,
+        @PathVariable(name = "page") page: Int,
+        @PathVariable(name = "size") size: Int
+    ): List<User>{
+        if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
+        val owner = userRepository.findByUsername(authentication.name)
+        val res = owner?.subscriptionList ?: listOf()
+        if ((page - 1) * size > res.size) {
+            throw IllegalArgumentException("Page not found")
+        }
+        return res.subList((page - 1) * size, (page * size).coerceAtMost(res.size))
     }
 
     // get singular list of subscribe user
-    @GetMapping("/singular/subscribe")
-    fun getSubscribeSingularList(authentication: Authentication): List<Singular>{
+    @GetMapping("/singular/subscribe/{page}/{size}")
+    fun getSubscribeSingularList(
+        authentication: Authentication,
+        @PathVariable(name = "page") page: Int,
+        @PathVariable(name = "size") size: Int
+    ): List<Singular>{
+        if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
         val owner = userRepository.findByUsername(authentication.name)
         val singularList = mutableListOf<Singular>()
         owner!!.subscriptionList.forEach { user ->
@@ -231,7 +295,10 @@ class SingularController {
                 singularList.add(it)
             }
         }
-        return singularList
+        if ((page - 1) * size > singularList.size) {
+            throw IllegalArgumentException("Page not found")
+        }
+        return singularList.subList((page - 1) * size, (page * size).coerceAtMost(singularList.size))
     }
 
     // plus read count of singular

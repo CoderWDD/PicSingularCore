@@ -42,7 +42,7 @@ data class CommentLevelSecond(
 
     @Column(name = "create_data")
     @Nullable
-    var createData: String = LocalDateTime.now()
+    var createDate: String = LocalDateTime.now()
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 
     @Column(name = "user_id")
