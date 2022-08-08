@@ -18,12 +18,12 @@ class UserService {
     @Autowired
     lateinit var roleRepository: RoleRepository
 
-    fun save(userDTO: UserDTO): User {
+    fun save(userDTO: UserDTO,roleName: String = RolesConstant.USER.name): User {
         // encode password when save user
         val user = User(username = userDTO.username, password = BCryptPasswordEncoder().encode(userDTO.password))
-        var role = roleRepository.findByName(RolesConstant.USER.name)
-        // if role is null, create new role
-        if (role == null) role = Role(name = RolesConstant.USER.name)
+        // if role is not exist, create new role
+        var role = roleRepository.findByName(roleName)
+        if (role == null) role = Role(name = roleName)
         user.roles = mutableListOf(role)
         return userRepository.save(user)
     }

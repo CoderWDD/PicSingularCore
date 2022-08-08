@@ -12,4 +12,6 @@ interface SingularRepository: JpaRepository<Singular,Long>, JpaSpecificationExec
 
     fun findBySingularStatus(singularStatus: String): List<Singular>
 
+    fun findByUser(user: User?): List<Singular>
+
 }

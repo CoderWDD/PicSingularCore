@@ -52,8 +52,8 @@ class UserController {
 
         // if user is found and password is correct, generate token and save it in redis
         val map = mutableMapOf<String,Any>("user" to userFound)
-        val tokenGenerated = jwtUtil.generateToken(map, userFound.username!!)
-        redisTemplate.opsForValue().set(userFound.username!!, tokenGenerated)
+        val tokenGenerated = jwtUtil.generateToken(map, userFound.username)
+        redisTemplate.opsForValue().set(userFound.username, tokenGenerated)
         httpServletResponse.addHeader("Authorization", "Bearer $tokenGenerated")
         return userFound
     }

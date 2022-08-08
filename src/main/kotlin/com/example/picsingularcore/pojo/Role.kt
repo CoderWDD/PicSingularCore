@@ -10,4 +10,8 @@ data class Role(
     var role_id: Long? = null,
     @Column(name = "role_name")
     var name: String?,
-)
+){
+    override fun equals(other: Any?): Boolean {
+        return this.name == (other as Role).name
+    }
+}

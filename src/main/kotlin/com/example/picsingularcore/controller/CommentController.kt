@@ -1,6 +1,5 @@
 package com.example.picsingularcore.controller
 
-import com.example.picsingularcore.common.response.ResponseData
 import com.example.picsingularcore.dao.CommentRepository
 import com.example.picsingularcore.dao.SecondCommentRepository
 import com.example.picsingularcore.dao.SingularRepository
@@ -63,10 +62,7 @@ class CommentController {
         val singular = singularRepository.findById(singularId).get()
         return commentRepository.findAll(
             (Specification { root, query, cb ->
-                cb.and(
-                    cb.equal(root.get<Long>("singularId"), singularId),
-                    cb.equal(root.get<String>("userId"), singular.user!!.userId)
-                )
+                cb.equal(root.get<Long>("singularId"), singularId)
             }),
             PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
         ).content
@@ -129,8 +125,8 @@ class CommentController {
         @PathVariable(name = "size") size: Int
     ): List<CommentLevelSecond> {
         if (page <= 0 || size <= 0) throw Exception("page or size is invalid")
-        if (!commentRepository.existsById(parentCommentId)) throw Exception("first comment not found")
         if (!singularRepository.existsById(singularId)) throw Exception("singular not found")
+        if (!commentRepository.existsById(parentCommentId)) throw Exception("first comment not found")
         return secondCommentRepository.findAll(
             (Specification { root, query, cb ->
                 cb.and(

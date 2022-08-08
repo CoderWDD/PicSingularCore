@@ -31,9 +31,10 @@ class SecurityConfig () {
             // 对登录注册无条件放行
             .authorizeRequests()
             .antMatchers("/user/login", "/user/register").permitAll()
-            .antMatchers("/admin/**").hasRole(RolesConstant.ADMIN.name)
-//            .antMatchers("/user/**").hasRole(RolesConstant.USER.name)
-            .antMatchers("/supper_admin/**").hasRole(RolesConstant.SUPER_ADMIN.name)
+            // 只有超级管理员可以指派管理员
+            .antMatchers("/admin/register").hasRole(RolesConstant.SUPER_ADMIN.name)
+            .antMatchers("/admin/**").hasAnyRole(RolesConstant.ADMIN.name,RolesConstant.SUPER_ADMIN.name)
+            .antMatchers("/superadmin/**").hasRole(RolesConstant.SUPER_ADMIN.name)
             .anyRequest().authenticated()
 
         // add custom exception handler

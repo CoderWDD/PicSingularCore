@@ -1,7 +1,6 @@
 package com.example.picsingularcore.pojo
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.hibernate.annotations.CreationTimestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatterBuilder
 import javax.persistence.*
