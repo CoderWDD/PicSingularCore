@@ -83,7 +83,7 @@ class UserController {
     }
 
     // get user api
-    @GetMapping("/user/get")
+    @GetMapping("/user/info")
     fun getUser(authentication: Authentication): User {
         return userRepository.findByUsername(authentication.name)!!
     }
@@ -114,6 +114,12 @@ class UserController {
         }
         httpServletResponse.contentType = "image/jpeg, image/jpg, image/png, image/gif, image/bmp, image/webp, image/svg+xml, image/x-icon, image/vnd.microsoft.icon"
         file.inputStream().copyTo(httpServletResponse.outputStream)
+    }
+
+    @GetMapping("/user/avatar/url")
+    fun getAvatarUrl(authentication: Authentication) : String {
+        val user = userRepository.findByUsername(authentication.name) ?: throw Exception("User avatar is null")
+        return FilePathConstant.IMAGE_PATH + authentication.name + "/avatar/" + user.avatar!!
     }
 
     // update profile

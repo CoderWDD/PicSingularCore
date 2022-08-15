@@ -1,12 +1,14 @@
 package com.example.picsingularcore.controller
 
 import com.example.picsingularcore.common.constant.RolesConstant
+import com.example.picsingularcore.common.utils.DTOUtil.pagesToPagesDTO
 import com.example.picsingularcore.common.utils.JwtUtil
 import com.example.picsingularcore.dao.CommentRepository
 import com.example.picsingularcore.dao.SecondCommentRepository
 import com.example.picsingularcore.dao.SingularRepository
 import com.example.picsingularcore.dao.UserRepository
 import com.example.picsingularcore.pojo.*
+import com.example.picsingularcore.pojo.dto.PagesDTO
 import com.example.picsingularcore.pojo.dto.UserDTO
 import com.example.picsingularcore.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -107,14 +109,15 @@ class AdminController {
         authentication: Authentication,
         @PathVariable(name = "page") page: Int,
         @PathVariable(name = "size") size: Int
-    ): List<User>{
+    ): PagesDTO<User>{
         if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
-        return userRepository.findAll(
+        val userPages =  userRepository.findAll(
             (Specification { root, _, cb->
                 cb.isMember(RolesConstant.USER.name, root.get<List<Role>>("roles"))
             }),
             PageRequest.of(page - 1, size)
-        ).content
+        )
+        return pagesToPagesDTO(userPages)
     }
 
     @PostMapping("/admin/user/delete/{username}")
@@ -140,15 +143,16 @@ class AdminController {
         @PathVariable(name = "username") username: String,
         @PathVariable(name = "page") page: Int,
         @PathVariable(name = "size") size: Int
-    ): List<Singular>{
+    ): PagesDTO<Singular>{
         if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
         val user = userRepository.findByUsername(username) ?: throw Exception("User not found")
-        return singularRepository.findAll(
+        val singularPages =  singularRepository.findAll(
             (Specification { root, _, criteriaBuilder ->
                 criteriaBuilder.equal(root.get<User>("user"), user)
             }),
             PageRequest.of(page - 1, size, Sort.by( "pushDate").descending())
-        ).content
+        )
+        return pagesToPagesDTO(singularPages)
     }
 
     @PostMapping("/admin/singular/delete/{id}")
@@ -164,15 +168,16 @@ class AdminController {
         @PathVariable(name = "singularId") singularId: Long,
         @PathVariable(name = "page") page: Int,
         @PathVariable(name = "size") size: Int
-    ): List<CommentLevelFirst>{
+    ): PagesDTO<CommentLevelFirst>{
         if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
         if (!singularRepository.existsById(singularId)) throw Exception("Singular not found")
-        return commentRepository.findAll(
+        val commentPages =  commentRepository.findAll(
             (Specification { root, _, criteriaBuilder ->
                 criteriaBuilder.equal(root.get<Long>("singularId"), singularId)
             }),
             PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
-        ).content
+        )
+        return pagesToPagesDTO(commentPages)
     }
 
     @GetMapping("/admin/comment/second/list/{singularId}/{firstCommentId}/{page}/{size}")
@@ -182,11 +187,11 @@ class AdminController {
         @PathVariable(name = "firstCommentId") firstCommentId: Long,
         @PathVariable(name = "page") page: Int,
         @PathVariable(name = "size") size: Int
-    ): List<CommentLevelSecond>{
+    ): PagesDTO<CommentLevelSecond>{
         if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
         if (!singularRepository.existsById(singularId)) throw Exception("singular not found")
         if (!commentRepository.existsById(firstCommentId)) throw Exception("First comment not found")
-        return secondCommentRepository.findAll(
+        val secondCommentPages =  secondCommentRepository.findAll(
             (Specification { root, _, cb ->
                 cb.and(
                     cb.equal(root.get<Long>("singularId"), singularId),
@@ -194,7 +199,8 @@ class AdminController {
                 )
             }),
             PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
-        ).content
+        )
+        return pagesToPagesDTO(secondCommentPages)
     }
 
     @PostMapping("/admin/comment/first/delete/{singularId}/{commentId}")

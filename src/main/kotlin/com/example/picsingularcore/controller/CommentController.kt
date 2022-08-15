@@ -1,5 +1,6 @@
 package com.example.picsingularcore.controller
 
+import com.example.picsingularcore.common.utils.DTOUtil.pagesToPagesDTO
 import com.example.picsingularcore.dao.CommentRepository
 import com.example.picsingularcore.dao.SecondCommentRepository
 import com.example.picsingularcore.dao.SingularRepository
@@ -8,6 +9,7 @@ import com.example.picsingularcore.pojo.CommentLevelFirst
 import com.example.picsingularcore.pojo.CommentLevelSecond
 import com.example.picsingularcore.pojo.dto.CommentFirstDTO
 import com.example.picsingularcore.pojo.dto.CommentSecondDTO
+import com.example.picsingularcore.pojo.dto.PagesDTO
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -52,20 +54,20 @@ class CommentController {
         @PathVariable singularId: Long,
         @PathVariable page: Int,
         @PathVariable size: Int
-    ): List<CommentLevelFirst> {
+    ): PagesDTO<CommentLevelFirst> {
         if (page <= 0 || size <= 0) {
             throw Exception("page or size is invalid")
         }
         if (!singularRepository.existsById(singularId)) {
             throw Exception("singular not found")
         }
-        val singular = singularRepository.findById(singularId).get()
-        return commentRepository.findAll(
-            (Specification { root, query, cb ->
+        val commentPages = commentRepository.findAll(
+            (Specification { root, _, cb ->
                 cb.equal(root.get<Long>("singularId"), singularId)
             }),
             PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
-        ).content
+        )
+        return pagesToPagesDTO(commentPages)
     }
 
     // add a second comment to first comment
@@ -123,11 +125,11 @@ class CommentController {
         @PathVariable(name = "firstCommentId") parentCommentId: Long,
         @PathVariable(name = "page") page: Int,
         @PathVariable(name = "size") size: Int
-    ): List<CommentLevelSecond> {
+    ): PagesDTO<CommentLevelSecond> {
         if (page <= 0 || size <= 0) throw Exception("page or size is invalid")
         if (!singularRepository.existsById(singularId)) throw Exception("singular not found")
         if (!commentRepository.existsById(parentCommentId)) throw Exception("first comment not found")
-        return secondCommentRepository.findAll(
+        val secondCommentPages =  secondCommentRepository.findAll(
             (Specification { root, query, cb ->
                 cb.and(
                     cb.equal(root.get<Long>("singularId"), singularId),
@@ -135,7 +137,8 @@ class CommentController {
                 )
             }),
             PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
-        ).content
+        )
+        return pagesToPagesDTO(secondCommentPages)
     }
 
     // plus first comment like count

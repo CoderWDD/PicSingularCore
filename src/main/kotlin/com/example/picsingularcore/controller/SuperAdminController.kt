@@ -2,10 +2,12 @@ package com.example.picsingularcore.controller
 
 import com.example.picsingularcore.common.constant.RolesConstant
 import com.example.picsingularcore.common.constant.SuperAdminConstants
+import com.example.picsingularcore.common.utils.DTOUtil.pagesToPagesDTO
 import com.example.picsingularcore.common.utils.JwtUtil
 import com.example.picsingularcore.dao.UserRepository
 import com.example.picsingularcore.pojo.Role
 import com.example.picsingularcore.pojo.User
+import com.example.picsingularcore.pojo.dto.PagesDTO
 import com.example.picsingularcore.pojo.dto.UserDTO
 import com.example.picsingularcore.service.UserService
 import org.apache.logging.log4j.message.StringFormattedMessage
@@ -98,13 +100,14 @@ class SuperAdminController {
     fun getAdmins(
             @PathVariable(name = "page") page: Int,
             @PathVariable(name = "size") size: Int
-    ): List<User> {
-        return userRepository.findAll(
+    ): PagesDTO<User> {
+        val userPages = userRepository.findAll(
             (Specification{ root, _, cb ->
                 cb.isMember(RolesConstant.SUPER_ADMIN.name, root.get<List<Role>>("roles"))
             }),
             PageRequest.of(page - 1, size)
-        ).content
+        )
+        return pagesToPagesDTO(userPages)
     }
 
     // update admin password
