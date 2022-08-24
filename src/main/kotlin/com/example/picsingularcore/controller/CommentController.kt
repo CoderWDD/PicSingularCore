@@ -37,7 +37,7 @@ class CommentController {
 
     // add a first comment to singular
     @PostMapping("/comment/first")
-    fun addFirstComment(authentication: Authentication,@RequestBody commentFirstDTO: CommentFirstDTO) {
+    fun addFirstComment(authentication: Authentication,@RequestBody commentFirstDTO: CommentFirstDTO): String {
         if (!singularRepository.existsById(commentFirstDTO.singularId)) {
             throw Exception("singular not found")
         }
@@ -46,6 +46,7 @@ class CommentController {
         val singular = singularRepository.findById(commentFirstDTO.singularId).get()
         singular.commentLevelFirstList?.add(commentLevelFirst)
         singularRepository.save(singular)
+        return "Add comment successfully"
     }
 
     // get all first comment of singular

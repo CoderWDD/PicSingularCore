@@ -5,16 +5,14 @@ import com.example.picsingularcore.common.utils.JwtUtil
 import com.example.picsingularcore.dao.UserRepository
 import com.example.picsingularcore.pojo.User
 import com.example.picsingularcore.pojo.dto.UserDTO
+import com.example.picsingularcore.pojo.dto.UserInfoDTO
 import com.example.picsingularcore.pojo.dto.UserUpdateDTO
 import com.example.picsingularcore.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.util.*
@@ -74,9 +72,9 @@ class UserController {
     @PostMapping("/user/logout")
     fun logout(authentication: Authentication) : String {
         val user = userRepository.findByUsername(authentication.name)!!
-        val token = redisTemplate.opsForValue().get(user.username!!)
+        val token = redisTemplate.opsForValue().get(user.username)
         if (token != null && jwtUtil.isTokenValid(token)) {
-            redisTemplate.delete(user.username!!)
+            redisTemplate.delete(user.username)
             return "User logged out successfully"
         }
         throw Exception("User not logged in")
@@ -86,6 +84,12 @@ class UserController {
     @GetMapping("/user/info")
     fun getUser(authentication: Authentication): User {
         return userRepository.findByUsername(authentication.name)!!
+    }
+
+    @GetMapping("/user/info/{id}")
+    fun getUserById(@PathVariable id: Long): UserInfoDTO {
+        val userFound = userRepository.findById(id).get() ?: throw Exception("User not found")
+        return UserInfoDTO(userId = userFound.userId!!,username = userFound.username, avatar = userFound.avatar,signature = userFound.signature)
     }
 
     // upload profile avatar
@@ -141,8 +145,8 @@ class UserController {
         userFound.password = user.password ?: BCryptPasswordEncoder().encode(userFound.password)
         // refresh token and update it in redis, put token in response header
         val map = mapOf("user" to userFound)
-        val tokenGenerated = jwtUtil.generateToken(map, userFound.username!!)
-        redisTemplate.opsForValue().set(userFound.username!!, tokenGenerated)
+        val tokenGenerated = jwtUtil.generateToken(map, userFound.username)
+        redisTemplate.opsForValue().set(userFound.username, tokenGenerated)
         httpServletResponse.addHeader("Authorization", "Bearer $tokenGenerated")
         return userRepository.save(userFound)
     }

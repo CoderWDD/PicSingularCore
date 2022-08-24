@@ -30,7 +30,7 @@ class SecurityConfig () {
             .and()
             // 对登录注册无条件放行
             .authorizeRequests()
-            .antMatchers("/user/login", "/user/register").permitAll()
+            .antMatchers("/user/login", "/user/register","/singular/list/all/**","/singular/image/**","/user/info/**").permitAll()
             // 只有超级管理员可以指派管理员
             .antMatchers("/admin/register").hasRole(RolesConstant.SUPER_ADMIN.name)
             .antMatchers("/admin/**").hasAnyRole(RolesConstant.ADMIN.name,RolesConstant.SUPER_ADMIN.name)

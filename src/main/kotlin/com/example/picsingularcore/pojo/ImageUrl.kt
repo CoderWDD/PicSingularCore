@@ -9,8 +9,6 @@ data class ImageUrl(
     @Column(name = "image_id")
     var imageId: Long? = null,
 
-    @Column(name = "singular_id")
-    var singularId: String? = null,
 
     @Column(name = "image_url")
     var imageUrl: String? = null

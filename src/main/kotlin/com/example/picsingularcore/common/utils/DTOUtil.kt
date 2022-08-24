@@ -17,7 +17,7 @@ object DTOUtil {
             isFirst = singularPages.isFirst,
             isLast = singularPages.isLast,
             hasPrevious = singularPages.hasPrevious(),
-            singulars = singularPages.content
+            dataList = singularPages.content
         )
     }
 
@@ -34,7 +34,7 @@ object DTOUtil {
             isFirst = page == 1,
             isLast = page == totalPages,
             hasPrevious = page != 1,
-            singulars = userList
+            dataList = userList
         )
     }
 }

@@ -10,5 +10,5 @@ data class PagesDTO<T> (
     val isFirst: Boolean,
     val isLast: Boolean,
     val hasPrevious: Boolean,
-    val singulars: List<T>
+    val dataList: List<T>
 )

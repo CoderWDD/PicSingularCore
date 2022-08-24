@@ -12,7 +12,10 @@ data class Singular(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var singularId: Long? = null,
 
-    @Column(name = "create_data")
+    @Column(name = "user_id")
+    var userId: Long? = null,
+
+    @Column(name = "pushDate")
     var pushDate: String = LocalDateTime.now()
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 

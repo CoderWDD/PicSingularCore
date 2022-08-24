@@ -67,7 +67,7 @@ class SingularController {
         singularDTO.imagesUrl.forEach {
             imageUrlList.add(ImageUrl(imageUrl = it))
         }
-        val singular = Singular(description = singularDTO.content, singularStatus = singularDTO.status, user = user, categoryList = singularCategoryList, imageList = imageUrlList)
+        val singular = Singular(description = singularDTO.content, singularStatus = singularDTO.status, user = user, categoryList = singularCategoryList, imageList = imageUrlList, userId = user!!.userId!!)
         return singularRepository.save(singular)
     }
 
@@ -136,7 +136,7 @@ class SingularController {
     ): PagesDTO<Singular> {
         if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
         val singularPages = singularRepository.findAll(
-            (Specification { root, query, cb ->
+            (Specification { root, _, cb ->
                 val user = userRepository.findByUsername(authentication.name)
                 cb.and(
                     cb.equal(root.get<Singular>("singularStatus"), SingularConstant.SHARED.name),
@@ -156,10 +156,10 @@ class SingularController {
     ): PagesDTO<Singular> {
         if (page <= 0 || size <= 0)  throw Exception("Page or size is Invalid")
         val singularPages = singularRepository.findAll(
-            (Specification { root, query, cb ->
+            (Specification { root, _, cb ->
                 cb.equal(root.get<Singular>("singularStatus"), SingularConstant.SHARED.name)
             }),
-            PageRequest.of(page - 1, size, Sort.by("pushData").descending())
+            PageRequest.of(page - 1, size, Sort.by("pushDate").descending())
         )
         return pagesToPagesDTO(singularPages)
     }
@@ -207,7 +207,6 @@ class SingularController {
             throw IllegalArgumentException("Singular already in favorite list")
         }
         user.favoriteList.add(singular)
-        singular.likeCount += 1
         userRepository.save(user)
         return singularRepository.save(singular)
     }
@@ -224,7 +223,6 @@ class SingularController {
             throw IllegalArgumentException("Singular not in favorite list")
         }
         user.favoriteList.remove(singular)
-        singular.likeCount -= 1
         userRepository.save(user)
         return singularRepository.save(singular)
     }
@@ -245,9 +243,31 @@ class SingularController {
         return listToPageDTO(res,page,size)
     }
 
+    // add singular like count
+    @PostMapping("/singular/like/{singularId}")
+    fun addSingularLikeCount(authentication: Authentication,@PathVariable singularId: Long): Singular {
+        if (!singularRepository.existsById(singularId)){
+            throw IllegalArgumentException("Singular not found")
+        }
+        val singular = singularRepository.findById(singularId).get()
+        singular.likeCount += 1
+        return singularRepository.save(singular)
+    }
+
+    // remove singular like count
+    @PostMapping("/singular/unlike/{singularId}")
+    fun removeSingularLikeCount(authentication: Authentication,@PathVariable singularId: Long): Singular {
+        if (!singularRepository.existsById(singularId)){
+            throw IllegalArgumentException("Singular not found")
+        }
+        val singular = singularRepository.findById(singularId).get()
+        singular.likeCount -= 1
+        return singularRepository.save(singular)
+    }
+
     // add subscribe user to current user
     @PostMapping("/singular/subscribe/{userId}")
-    fun addSubscribe(authentication: Authentication,@PathVariable userId: Long){
+    fun addSubscribe(authentication: Authentication,@PathVariable userId: Long): String{
         if (!userRepository.existsById(userId)){
             throw IllegalArgumentException("User not found")
         }
@@ -255,11 +275,12 @@ class SingularController {
         val owner = userRepository.findByUsername(authentication.name)!!
         owner.subscriptionList.add(user)
         userRepository.save(owner)
+        return "Subscribe Success"
     }
 
     // remove subscribe user from current user
     @PostMapping("/singular/unsubscribe/{userId}")
-    fun removeSubscribe(authentication: Authentication,@PathVariable userId: Long){
+    fun removeSubscribe(authentication: Authentication,@PathVariable userId: Long): String{
         if (!userRepository.existsById(userId)){
             throw IllegalArgumentException("User not found")
         }
@@ -267,6 +288,7 @@ class SingularController {
         val owner = userRepository.findByUsername(authentication.name)
         owner!!.subscriptionList.remove(user)
         userRepository.save(owner)
+        return "Unsubscribe Success"
     }
 
     // get subscribe user list of current user
