@@ -25,7 +25,7 @@ object DTOUtil {
         val currentElements = if (page * size <= userList.size) size else if (page == 1 && userList.size < size) userList.size else userList.size % size
         val totalPages = ceil(userList.size / size.toDouble()).toInt()
         return PagesDTO(
-            hasMore = (page - 1) * size < userList.size,
+            hasMore = page * size < userList.size,
             totalPages = totalPages,
             totalElements = userList.size.toLong(),
             currentPage = page,

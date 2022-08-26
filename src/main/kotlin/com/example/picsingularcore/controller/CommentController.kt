@@ -131,7 +131,7 @@ class CommentController {
         if (!singularRepository.existsById(singularId)) throw Exception("singular not found")
         if (!commentRepository.existsById(parentCommentId)) throw Exception("first comment not found")
         val secondCommentPages =  secondCommentRepository.findAll(
-            (Specification { root, query, cb ->
+            (Specification { root, _, cb ->
                 cb.and(
                     cb.equal(root.get<Long>("singularId"), singularId),
                     cb.equal(root.get<Long>("parentCommentId"), parentCommentId)

@@ -88,13 +88,14 @@ class UserController {
 
     @GetMapping("/user/info/{id}")
     fun getUserById(@PathVariable id: Long): UserInfoDTO {
-        val userFound = userRepository.findById(id).get() ?: throw Exception("User not found")
+        val userFound = userRepository.findById(id).get()
         return UserInfoDTO(userId = userFound.userId!!,username = userFound.username, avatar = userFound.avatar,signature = userFound.signature)
     }
 
     // upload profile avatar
     @PostMapping("/user/avatar")
-    fun uploadAvatar(authentication: Authentication, @RequestBody multipartFile: MultipartFile) : User {
+    fun uploadAvatar(authentication: Authentication, @RequestPart(name = "avatar") multipartFile: MultipartFile) : User {
+        if (multipartFile == null) throw Exception("File is Null")
         if (multipartFile.isEmpty) throw Exception("File is empty")
         val filePath = FilePathConstant.IMAGE_PATH + authentication.name + "/avatar/"
         File(filePath).mkdirs()
@@ -112,6 +113,18 @@ class UserController {
     fun getAvatar(authentication: Authentication) {
         val user = userRepository.findByUsername(authentication.name)!!
         val path = FilePathConstant.IMAGE_PATH + authentication.name + "/avatar/" + user.avatar!!
+        val file = File(path)
+        if (!file.exists()){
+            throw Exception("Avatar not found")
+        }
+//        httpServletResponse.contentType = "image/jpeg, image/jpg, image/png, image/gif, image/bmp, image/webp, image/svg+xml, image/x-icon, image/vnd.microsoft.icon"
+        file.inputStream().copyTo(httpServletResponse.outputStream)
+    }
+
+    @GetMapping("/user/info/avatar/{username}")
+    fun getAvatarByUrl(@PathVariable(value = "username") username: String){
+        val user = userRepository.findByUsername(username) ?: throw Exception("User avatar is null")
+        val path = FilePathConstant.IMAGE_PATH + username + "/avatar/" + user.avatar
         val file = File(path)
         if (!file.exists()){
             throw Exception("Avatar not found")

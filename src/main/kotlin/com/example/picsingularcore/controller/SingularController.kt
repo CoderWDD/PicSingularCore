@@ -122,7 +122,7 @@ class SingularController {
                     cb.equal(root.get<User>("user"), user)
                 )
             }),
-            PageRequest.of(page - 1, size, Sort.by("pushData").descending())
+            PageRequest.of(page - 1, size, Sort.by("pushDate").descending())
         )
         return pagesToPagesDTO(singularPages)
     }
@@ -143,7 +143,7 @@ class SingularController {
                     cb.equal(root.get<User>("user"), user)
                 )
             }),
-            PageRequest.of(page - 1, size, Sort.by("pushData").descending())
+            PageRequest.of(page - 1, size, Sort.by("pushDate").descending())
         )
         return pagesToPagesDTO(singularPages)
     }
@@ -164,9 +164,17 @@ class SingularController {
         return pagesToPagesDTO(singularPages)
     }
 
-    // change singular status to shared
-    @PostMapping("/singular/change/{singularId}")
-    fun changeSingularStatus(authentication: Authentication,@PathVariable singularId: Long): Singular {
+    // change singular status to saved
+    @PostMapping("/singular/change/saved/{singularId}")
+    fun changeSingularStatusToSaved(authentication: Authentication,@PathVariable singularId: Long): Singular {
+        val singular = singularRepository.findById(singularId).get()
+        singular.singularStatus = SingularConstant.SAVED.name
+        return singularRepository.save(singular)
+    }
+
+    // change singular status to saved
+    @PostMapping("/singular/change/shared/{singularId}")
+    fun changeSingularStatusToShared(authentication: Authentication,@PathVariable singularId: Long): Singular {
         val singular = singularRepository.findById(singularId).get()
         singular.singularStatus = SingularConstant.SHARED.name
         return singularRepository.save(singular)
@@ -273,6 +281,7 @@ class SingularController {
         }
         val user = userRepository.findById(userId).get()
         val owner = userRepository.findByUsername(authentication.name)!!
+        if (user.userId == owner.userId) throw IllegalArgumentException("Can't subscribe yourself")
         owner.subscriptionList.add(user)
         userRepository.save(owner)
         return "Subscribe Success"

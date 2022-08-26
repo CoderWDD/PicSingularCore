@@ -9,9 +9,5 @@ import java.time.format.DateTimeFormatterBuilder
 @SpringBootTest
 class PicSingularCoreApplicationTests {
 
-	@Test
-	fun contextLoads() {
-		println(LocalDateTime.now().format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()))
-	}
 
 }
