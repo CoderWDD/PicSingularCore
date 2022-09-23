@@ -15,6 +15,7 @@ data class User(
     var username: String,
 
     @Column(name = "password", nullable = false)
+    @JsonIgnore
     var password: String,
 
     @Column(name = "avatar", nullable = true)

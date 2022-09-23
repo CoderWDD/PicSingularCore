@@ -109,29 +109,29 @@ class UserController {
     }
 
     // get profile avatar
-    @GetMapping("/user/avatar")
-    fun getAvatar(authentication: Authentication) {
-        val user = userRepository.findByUsername(authentication.name)!!
-        val path = FilePathConstant.IMAGE_PATH + authentication.name + "/avatar/" + user.avatar!!
-        val file = File(path)
-        if (!file.exists()){
-            throw Exception("Avatar not found")
-        }
+//    @GetMapping("/images/user/avatar")
+//    fun getAvatar(authentication: Authentication) {
+//        val user = userRepository.findByUsername(authentication.name)!!
+//        val path = FilePathConstant.IMAGE_PATH + authentication.name + "/avatar/" + user.avatar!!
+//        val file = File(path)
+//        if (!file.exists()){
+//            throw Exception("Avatar not found")
+//        }
+////        httpServletResponse.contentType = "image/jpeg, image/jpg, image/png, image/gif, image/bmp, image/webp, image/svg+xml, image/x-icon, image/vnd.microsoft.icon"
+//        file.inputStream().copyTo(httpServletResponse.outputStream)
+//    }
+//
+//    @GetMapping("/images/user/info/avatar/{username}")
+//    fun getAvatarByUrl(@PathVariable(value = "username") username: String){
+//        val user = userRepository.findByUsername(username) ?: throw Exception("User avatar is null")
+//        val path = FilePathConstant.IMAGE_PATH + username + "/avatar/" + user.avatar
+//        val file = File(path)
+//        if (!file.exists()){
+//            throw Exception("Avatar not found")
+//        }
 //        httpServletResponse.contentType = "image/jpeg, image/jpg, image/png, image/gif, image/bmp, image/webp, image/svg+xml, image/x-icon, image/vnd.microsoft.icon"
-        file.inputStream().copyTo(httpServletResponse.outputStream)
-    }
-
-    @GetMapping("/user/info/avatar/{username}")
-    fun getAvatarByUrl(@PathVariable(value = "username") username: String){
-        val user = userRepository.findByUsername(username) ?: throw Exception("User avatar is null")
-        val path = FilePathConstant.IMAGE_PATH + username + "/avatar/" + user.avatar
-        val file = File(path)
-        if (!file.exists()){
-            throw Exception("Avatar not found")
-        }
-        httpServletResponse.contentType = "image/jpeg, image/jpg, image/png, image/gif, image/bmp, image/webp, image/svg+xml, image/x-icon, image/vnd.microsoft.icon"
-        file.inputStream().copyTo(httpServletResponse.outputStream)
-    }
+//        file.inputStream().copyTo(httpServletResponse.outputStream)
+//    }
 
     @GetMapping("/user/avatar/url")
     fun getAvatarUrl(authentication: Authentication) : String {

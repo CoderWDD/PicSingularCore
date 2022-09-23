@@ -38,7 +38,6 @@ data class Singular(
     var imageList: List<ImageUrl>? = null,
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH])
-    @JsonIgnore
     var user: User? = null,
 
     @ManyToMany(cascade = [CascadeType.DETACH,CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH], fetch = FetchType.LAZY)

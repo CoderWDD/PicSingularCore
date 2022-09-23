@@ -91,7 +91,7 @@ class SingularController {
     }
 
     // show image of singular by url
-    @GetMapping("/singular/image/{singularId}/{url}")
+    @GetMapping("/images/singular/{singularId}/{url}")
     fun showImage(@PathVariable(name = "singularId") singularId: Long,@PathVariable(name = "url") url: String) {
         if (!singularRepository.existsById(singularId)){
             throw IllegalArgumentException("Singular not found")
@@ -140,7 +140,7 @@ class SingularController {
                 val user = userRepository.findByUsername(authentication.name)
                 cb.and(
                     cb.equal(root.get<Singular>("singularStatus"), SingularConstant.SHARED.name),
-                    cb.equal(root.get<User>("user"), user)
+                    cb.equal(root.get<User>("user"), user),
                 )
             }),
             PageRequest.of(page - 1, size, Sort.by("pushDate").descending())
