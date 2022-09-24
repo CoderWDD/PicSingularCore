@@ -282,6 +282,7 @@ class SingularController {
         val user = userRepository.findById(userId).get()
         val owner = userRepository.findByUsername(authentication.name)!!
         if (user.userId == owner.userId) throw IllegalArgumentException("Can't subscribe yourself")
+        if (owner.subscriptionList.contains(user)) throw IllegalArgumentException("You cannot re-subscribe")
         owner.subscriptionList.add(user)
         userRepository.save(owner)
         return "Subscribe Success"
@@ -298,6 +299,18 @@ class SingularController {
         owner!!.subscriptionList.remove(user)
         userRepository.save(owner)
         return "Unsubscribe Success"
+    }
+
+    // check if user has been subscribed
+    @GetMapping("/singular/hasSubscribed/{userId}")
+    fun checkHasSubscribedUser(authentication: Authentication, @PathVariable userId: Long): Boolean{
+        if (!userRepository.existsById(userId)){
+            throw IllegalArgumentException("User not found")
+        }
+        val user = userRepository.findById(userId).get()
+        val owner = userRepository.findByUsername(authentication.name)!!
+        if (owner.subscriptionList.contains(user)) return true
+        return false
     }
 
     // get subscribe user list of current user
