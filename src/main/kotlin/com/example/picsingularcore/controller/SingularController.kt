@@ -45,7 +45,7 @@ class SingularController {
     @Autowired
     lateinit var httpServletResponse: HttpServletResponse
 
-    // upload a singular, and return the singular entity with the id
+    // create a singular, and return the singular entity with the id
     @PostMapping("/singular/create")
     fun createSingular(authentication: Authentication,@RequestBody singularDTO: SingularDTO): Singular {
         val user = userRepository.findByUsername(authentication.name)

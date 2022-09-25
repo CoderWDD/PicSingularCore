@@ -8,5 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class WebMvcConfig: WebMvcConfigurer{
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
         registry.addResourceHandler("/images/**").addResourceLocations("file:/picSingular/image/")
+        registry.addResourceHandler("/banner/**").addResourceLocations("file:/picSingular/banner/")
     }
 }
