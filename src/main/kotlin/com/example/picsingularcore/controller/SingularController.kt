@@ -235,6 +235,19 @@ class SingularController {
         return singularRepository.save(singular)
     }
 
+    // check if user has added the singular to favorite list
+    @GetMapping("/singular/hasFavorite/{singularId}")
+    fun checkHasAddToFavoriteList(authentication: Authentication, @PathVariable singularId: Long): Boolean{
+        if (!singularRepository.existsById(singularId)){
+            throw IllegalArgumentException("Singular not found")
+        }
+        val singular = singularRepository.findById(singularId).get()
+        val owner = userRepository.findByUsername(authentication.name)!!
+        if (owner.favoriteList.contains(singular)) return true
+        return false
+    }
+
+
     // get favorite singular list of current user
     @GetMapping("/singular/favorite/list/{page}/{size}")
     fun getFavoriteSingularList(
