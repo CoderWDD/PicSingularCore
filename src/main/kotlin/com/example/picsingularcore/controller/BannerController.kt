@@ -50,6 +50,7 @@ class BannerController {
     @GetMapping("/banner/list/{size}")
     fun getBannerList(authentication: Authentication, @PathVariable("size") size: Int): MutableList<Banner> {
         val bannerUrlList = bannerRepository.findAll(Sort.by("pushDate").descending())
+        if (size > bannerUrlList.size) return bannerUrlList
         return bannerUrlList.subList(0,size - 1)
     }
 }

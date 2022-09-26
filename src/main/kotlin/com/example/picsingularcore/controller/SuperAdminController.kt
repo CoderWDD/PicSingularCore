@@ -64,7 +64,7 @@ class SuperAdminController {
         val map = mutableMapOf<String, Any>("user" to userFound)
         val tokenGenerated = jwtUtil.generateToken(map, userFound.username)
         redisTemplate.opsForValue().set(user.username, tokenGenerated)
-        httpServletResponse.addHeader("Authorization", "Bearer $token")
+        httpServletResponse.addHeader("Authorization", "Bearer $tokenGenerated")
         return userFound
     }
 
