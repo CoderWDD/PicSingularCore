@@ -11,5 +11,7 @@ data class SingularDTO(
     @field:NotBlank(message = "Category is required")
     val category: List<String>,
     @field:NotBlank(message = "At least one image is required")
-    val imagesUrl: List<String>
+    val imagesUrl: List<String>,
+    @field:NotBlank(message = "Singular title is required")
+    val title : String
 )

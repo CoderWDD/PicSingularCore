@@ -12,6 +12,9 @@ data class Singular(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var singularId: Long? = null,
 
+    @Column(name = "title")
+    var title :String? ="无标题",
+
     @Column(name = "user_id")
     var userId: Long? = null,
 

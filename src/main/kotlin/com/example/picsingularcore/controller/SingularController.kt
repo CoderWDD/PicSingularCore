@@ -67,7 +67,7 @@ class SingularController {
         singularDTO.imagesUrl.forEach {
             imageUrlList.add(ImageUrl(imageUrl = it))
         }
-        val singular = Singular(description = singularDTO.content, singularStatus = singularDTO.status, user = user, categoryList = singularCategoryList, imageList = imageUrlList, userId = user!!.userId!!)
+        val singular = Singular(description = singularDTO.content, singularStatus = singularDTO.status, title = singularDTO.title , user = user, categoryList = singularCategoryList, imageList = imageUrlList, userId = user!!.userId!!)
         return singularRepository.save(singular)
     }
 
