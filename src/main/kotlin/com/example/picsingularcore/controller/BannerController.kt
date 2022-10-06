@@ -1,17 +1,11 @@
 package com.example.picsingularcore.controller
 
 import com.example.picsingularcore.common.constant.FilePathConstant
-import com.example.picsingularcore.common.constant.SingularConstant
-import com.example.picsingularcore.common.utils.DTOUtil
 import com.example.picsingularcore.dao.BannerRepository
 import com.example.picsingularcore.pojo.Banner
-import com.example.picsingularcore.pojo.Singular
-import com.example.picsingularcore.pojo.User
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.jpa.domain.Specification
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -31,7 +25,7 @@ class BannerController {
         if (multipartFileList.isEmpty()) {
             throw IllegalArgumentException("Image list is empty")
         }
-        val filePath = FilePathConstant.IMAGE_PATH
+        val filePath = FilePathConstant.BANNER_PATH
         File(filePath).mkdirs()
         val bannerUrlList = mutableListOf<String>()
         multipartFileList.forEach {
@@ -39,7 +33,8 @@ class BannerController {
             val file = File(filePath + fileName)
             // write multipartFile to file
             file.writeBytes(it.bytes)
-            val banner = Banner(banner_url = fileName)
+            // 保存到数据库
+            val banner = Banner(bannerUrl = fileName)
             bannerRepository.save(banner)
             bannerUrlList.add(fileName)
         }
