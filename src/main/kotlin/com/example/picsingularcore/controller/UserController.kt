@@ -142,6 +142,7 @@ class UserController {
     // update profile
     @PostMapping("/user/update")
     fun update(authentication: Authentication, @RequestBody user: UserUpdateDTO) : User {
+        if (user.username == null) user.username = authentication.name
         // if username changed
         if (user.username!!.isNotEmpty() && user.username != authentication.name){
             // if username has been register, then throw exception
@@ -152,12 +153,12 @@ class UserController {
             file.renameTo(File(FilePathConstant.IMAGE_PATH + user.username + "/"))
         }
         val userFound = userRepository.findByUsername(authentication.name)!!
-        userFound.username = user.username
+        userFound.username = user.username!!
         userFound.avatar = user.avatar ?: userFound.avatar
         userFound.signature = user.signature ?: userFound.signature
-        userFound.password = user.password ?: BCryptPasswordEncoder().encode(userFound.password)
+        userFound.password = if (user.password != null) BCryptPasswordEncoder().encode(user.password) else userFound.password
         // refresh token and update it in redis, put token in response header
-        val map = mapOf("user" to userFound)
+        val map = mutableMapOf<String,Any>("user" to userFound)
         val tokenGenerated = jwtUtil.generateToken(map, userFound.username)
         redisTemplate.opsForValue().set(userFound.username, tokenGenerated)
         httpServletResponse.addHeader("Authorization", "Bearer $tokenGenerated")
