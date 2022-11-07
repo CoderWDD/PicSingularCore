@@ -1,5 +1,6 @@
 package com.example.picsingularcore.controller
 
+import com.example.picsingularcore.common.utils.DTOUtil.listToPageDTO
 import com.example.picsingularcore.common.utils.DTOUtil.pagesToPagesDTO
 import com.example.picsingularcore.dao.CommentRepository
 import com.example.picsingularcore.dao.SecondCommentRepository
@@ -42,7 +43,7 @@ class CommentController {
             throw Exception("singular not found")
         }
         val user = userRepository.findByUsername(authentication.name)!!
-        val commentLevelFirst = CommentLevelFirst(userId = user.userId!!, username = user.username, content = commentFirstDTO.content, likeCount = 0, singularId = commentFirstDTO.singularId)
+        val commentLevelFirst = CommentLevelFirst(userId = user.userId!!, username = user.username, content = commentFirstDTO.content, likeCount = 0, singularId = commentFirstDTO.singularId, avatar = user.avatar ?: "")
         val singular = singularRepository.findById(commentFirstDTO.singularId).get()
         singular.commentLevelFirstList?.add(commentLevelFirst)
         singularRepository.save(singular)
@@ -68,7 +69,12 @@ class CommentController {
             }),
             PageRequest.of(page - 1, size, Sort.by("likeCount").descending().and(Sort.by("createDate").descending()))
         )
-        return pagesToPagesDTO(commentPages)
+        val temp = commentPages.map {
+            val user = userRepository.findByUsername(it.username)!!
+            it.avatar = user.avatar ?: ""
+            it
+        }
+        return pagesToPagesDTO(temp)
     }
 
     // add a second comment to first comment

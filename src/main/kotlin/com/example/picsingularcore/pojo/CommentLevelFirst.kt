@@ -32,5 +32,7 @@ data class CommentLevelFirst(
         .format(DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm").toFormatter()),
 
     @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    var commentSecondList: MutableList<CommentLevelSecond>? = mutableListOf()
+    var commentSecondList: MutableList<CommentLevelSecond>? = mutableListOf(),
+
+    var avatar: String
 )
