@@ -19,7 +19,67 @@
 
 ## 部署流程
 
-- TODO
+- docker-compose:
+
+  ```dockerfile
+  version: "3"
+  services:
+    mysqldb:
+      container_name: PicSingularCore_mysqldb
+      image: mysql:8.0.27
+      ports:
+        - "${MYSQL_PORT}:3306"
+      command: [
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci',
+        '--default-time-zone=+8:00'
+      ]
+      restart: always
+      environment:
+        - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_DATABASE=PicSingularDatabase
+  
+    redis:
+      container_name: PicSingularDatabase_Redis
+      image: redis:latest
+      restart: always
+      ports:
+        - "${REDIS_PORT}:6379"
+      environment:
+        - REDIS_PORT=6379
+        - CONNECT_TIMEOUT=5000
+        - MAX_IDLE=10
+        - MAX_WAIT=-1
+        - MIN_IDLE=5
+  
+    PicSingular:
+      container_name: PicSingularCore
+      image: coderwdd/pic_singular_core:latest
+      ports:
+        - "${SERVER_PORT}:8080"
+      restart: always
+      depends_on:
+        - mysqldb
+        - redis
+      links:
+        - "mysqldb:mysqldb"
+        - "redis:redis"
+      env_file:
+        pic_singular_core.env
+      environment:
+        - TZ=Asia/Shanghai
+  ```
+
+- pic_singular_core.env:
+
+  ```yaml
+  MYSQL_HOST=HostIp
+  MYSQL_PORT=3306
+  MYSQL_USERNAME=root
+  MYSQL_PASSWORD=123456
+  REDIS_HOST=HostIp
+  REDIS_PORT=6379
+  SERVER_PORT=8806
 
 ## TODO
 
